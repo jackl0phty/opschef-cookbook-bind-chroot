@@ -15,7 +15,7 @@ for bind9.  However, this is NOT working at this time!!!!
 REQUIREMENTS
 ============
 
-Apply the recipe bind-chroot if you just want to install  bind9 in a chroot
+Apply the recipe bind-chroot::chroot if you just want to install bind9 in a chroot
 jail environment.
 
 ATTRIBUTES
