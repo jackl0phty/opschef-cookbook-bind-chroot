@@ -4,6 +4,19 @@
 #
 # Copyright 2012, Gerald L. Hevener Jr., M.S.
 #
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Copyright 2012, Gerald L. Hevener Jr., M.S.
+#
 
 # References:
 # http://bind9-ldap.bayour.com/
@@ -42,6 +55,13 @@ directory "/var/bind9/chroot" do
   group "bind"
   mode "0755"
   recursive true 
+end
+
+# Create directory #{node['bind-chroot']['zones_dir']}
+directory "/var/bind9/chroot/zones" do
+  owner "bind"
+  group "bind"
+  mode "0755"
 end
 
 # Create directory #{node['bind-chroot']['chroot_dir']}/etc
@@ -119,7 +139,7 @@ script "create_special_device_files" do
   mknod /var/bind9/chroot/dev/random c 1 8
   chmod 660 /var/bind9/chroot/dev/{null,random}
   EOH
-  not_if "test -f /var/bind9/chroot/dev/null"
+  not_if "ls /var/bind9/chroot/dev/null |grep null"
 end
 
 # Move config dir to chroot jail
@@ -165,6 +185,26 @@ bash "tell_rsyslog_about_bind_logs" do
   not_if "cat /etc/rsyslog.d/bind-chroot.conf |grep chroot"
 end
 
+# Add directory /usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines
+directory "/var/bind9/chroot/usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines" do
+  owner "bind"
+  group "bind"
+  mode 00744
+  action :create
+  recursive true
+  not_if "test -d /var/bind9/chroot/usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines"
+end
+
+# Copy libgost.so to /var/bind9/chroot/usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines.
+bash "cp_libgost.so_to_chroot_jail" do
+  user "root"
+  cwd "tmp"
+  code <<-EOH
+  cp /usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so /var/bind9/chroot/usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so
+  EOH
+  not_if "test -f /var/bind9/chroot/usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so"
+end
+
 # Set permissions on jail
 bash "set_permissions_on_chroot_jail" do
   user "root"
@@ -187,4 +227,20 @@ bash "restart_bind9_and_rsyslog" do
   chown bind:bind /var/bind9/chroot/restart.lock
   EOH
   not_if "test -f /var/bind9/chroot/restart.lock"
+end
+
+# Add template for /var/bind9/chroot/named.conf.local
+template "/var/bind9/chroot/named.conf.local" do
+  source "named.conf.local.erb"
+  owner "bind"
+  group "bind"
+  mode "0644"
+end
+
+# Add template for /var/bind9/chroot/named.conf.options
+template "/var/bind9/chroot/named.conf.options" do
+  source "named.conf.options.erb"
+  owner "bind"
+  group "bind"
+  mode "0644"
 end

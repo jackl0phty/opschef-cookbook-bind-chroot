@@ -15,17 +15,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Set CHROOT directory
-default['bind-chroot']['chroot_dir'] = "/var/bind9/chroot"
+# Set CHROOT directory.
+node.set['bind-chroot']['chroot_dir'] = '/var/bind9/chroot'
 
-# Set user name for BIND
-default['bind-chroot']['bind_user_name'] = "bind"
+# Set user name for BIND.
+node.set['bind-chroot']['bind_user_name'] = 'bind'
 
-# Set group name for BIND
-default['bind-chroot']['bind_group_name'] = "bind"
+# Set group name for BIND.
+node.set['bind-chroot']['bind_group_name'] = 'bind'
 
-# Store zones in OpenLDAP
-default['bind-chroot']['store_zones_in_openldap'] = "no"
+# Store zones in OpenLDAP.
+node.set['bind-chroot']['store_zones_in_openldap'] = 'no'
 
-# Include openldap attributes file
+# Include zones.rfc1918.
+node.set['bind-chroot']['zones_rfc1928'] = 'yes'
+
+# Set service name.
+node.set['bind-chroot']['service_name'] = 'bind9'
+
+# Include openldap attributes file.
 include_attribute 'bind-chroot::openldap'
