@@ -1,0 +1,33 @@
+platform :ubuntu do
+  version '12.04' do
+    box "opscode-ubuntu-12.04"
+    box_url "https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_chef-11.2.0.box"
+  end
+end
+
+platform :ubuntu do
+  version '12.04' do
+    box "opscode-ubuntu-12.04-i386"
+    box_url "https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04-i386_chef-10.18.2.box"
+  end
+end
+
+platform :centos do
+  version '6.3' do
+    box "opscode-centos-6.3"
+    box_url "https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-6.3_chef-11.2.0.box"
+  end
+end
+
+platform :centos do
+  version '6.3' do
+    box "opscode-centos-6.3-i386"
+    box_url "https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-6.3-i386_chef-10.18.2.box"
+  end
+end
+
+cookbook "bind-chroot" do
+  configuration "default"
+  configuration "chroot"
+  lint true
+end

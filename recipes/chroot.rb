@@ -23,9 +23,9 @@
 # http://arnauds-scrapbook.blogspot.com/2011/08/chroot-bind-in-debian-6-squeeze_1526.html
 
 # Install Bind9 on Debian/Ubuntu
-case node['platform']
+case node['platform_family']
 
-  when "debian","ubuntu"
+  when "debian"
     %w{ bind9 bind9-doc bind9-host bind9utils dnsutils }.each do |pkg|
     package pkg do
       action :install
@@ -33,8 +33,8 @@ case node['platform']
   end
 
 # Install Bind9 on Redhat
-  when "redhat","centos","scientific","arch","amazon"
-    %w{ bind97-chroot bind97-utils }.each do |pkg|
+  when "redhat"
+    %w{ bind-chroot bind-utils }.each do |pkg|
     package pkg do
       action :install
     end
@@ -44,8 +44,8 @@ end
 # Add template for /etc/default/bind9
 template "/etc/default/bind9" do
   source "bind9.erb"
-  owner "bind" 
-  group "bind"
+  owner "#{node.set['bind-chroot']['bind_user_name']}"
+  group "#{node.set['bind-chroot']['bind_user_name']}"
   mode "0644"
 end
 
@@ -142,16 +142,30 @@ script "create_special_device_files" do
   not_if "ls /var/bind9/chroot/dev/null |grep null"
 end
 
-# Move config dir to chroot jail
-bash "mv_config_dir_to_chroot_jail" do
-  user "root"
-  cwd "/tmp"
-  code <<-EOH
-  mv /etc/bind /var/bind9/chroot/etc
-  EOH
-  not_if "test -d /var/bind9/chroot/etc/bind"
+case node['platform_family']
+  when "debian"
+  # Move config dir to chroot jail
+  bash "mv_config_dir_to_chroot_jail" do
+    user "root"
+    cwd "/tmp"
+    code <<-EOH
+    mv /etc/bind /var/bind9/chroot/etc
+    EOH
+    not_if "test -d /var/bind9/chroot/etc/bind"
+  end
+  when "redhat"
+  # Move config dir to chroot jail
+  bash "mv_config_dir_to_chroot_jail" do
+    user "root"
+    cwd "/tmp"
+    code <<-EOH
+    mkdir /var/bind9/chroot/etc/default
+    mv /etc/default/bind9 /var/bind9/chroot/etc/default
+    EOH
+    not_if "test -d /var/bind9/chroot/etc/default/bind9"
+  end
 end
-
+  
 # Create symbolic link to /etc/bind for compatibility
 bash "create_symbolic_link_to_/etc/bind" do
   user "root"

@@ -18,11 +18,20 @@
 # Set CHROOT directory.
 node.set['bind-chroot']['chroot_dir'] = '/var/bind9/chroot'
 
-# Set user name for BIND.
-node.set['bind-chroot']['bind_user_name'] = 'bind'
+if node['platform_family'] = 'debian'
+  # Set user name for BIND.
+  node.set['bind-chroot']['bind_user_name'] = 'bind'
 
-# Set group name for BIND.
-node.set['bind-chroot']['bind_group_name'] = 'bind'
+  # Set group name for BIND.
+  node.set['bind-chroot']['bind_group_name'] = 'bind'
+end
+if node['platform_family'] = 'debian'
+  # Set user name for BIND.
+  node.set['bind-chroot']['bind_user_name'] = 'named'
+
+  # Set group name for BIND.
+  node.set['bind-chroot']['bind_group_name'] = 'named'
+end
 
 # Store zones in OpenLDAP.
 node.set['bind-chroot']['store_zones_in_openldap'] = 'no'

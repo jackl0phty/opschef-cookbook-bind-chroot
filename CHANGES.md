@@ -1,3 +1,7 @@
+VERSION 0.0.18
+--------------
+Initial Test-kitchen integration
+
 VERSION 0.0.16
 --------------
 * Moved zone2ldif to it's own cookbook.
